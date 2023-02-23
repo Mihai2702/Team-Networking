@@ -1,8 +1,8 @@
-fetch('http://localhost:3000/teams-json', {
-  method: 'GET',
+fetch("http://localhost:3000/teams-json", {
+  method: "GET",
   headers: {
-    'Content-Type': 'application/json',
-  },
+    "Content-Type": "application/json"
+  }
 })
   .then(r => r.json())
   .then(teams => {
@@ -23,45 +23,45 @@ function displayTeams(teams) {
       </tr>`
   );
 
-  document.querySelector('#teams tbody').innerHTML = teamsHTML.join('');
+  document.querySelector("#teams tbody").innerHTML = teamsHTML.join("");
 }
 
 function onSubmit(e) {
   e.preventDefault();
 
-  fetch('http://localhost:3000/teams-json/create', {
-    method: 'POST',
+  fetch("http://localhost:3000/teams-json/create", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      promotion: document.getElementById('promotion').value,
-      members: document.getElementById('members').value,
-      name: document.getElementById('name').value,
-      url: document.getElementById('url').value,
-    }),
+      promotion: document.getElementById("promotion").value,
+      members: document.getElementById("members").value,
+      name: document.getElementById("name").value,
+      url: document.getElementById("url").value
+    })
   })
     .then(r => r.json())
     .then(status => {
-      console.warn('status', status.success, status.id);
+      console.warn("status", status.success, status.id);
       if (status.success) {
         window.location.reload();
       }
     });
 }
 function removeTeamRequest(id) {
-  fetch('http://localhost:3000/teams-json/delete', {
-    method: 'DELETE',
+  fetch("http://localhost:3000/teams-json/delete", {
+    method: "DELETE",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json"
     },
-    body: JSON.stringify({ id }),
+    body: JSON.stringify({ id })
   });
 }
 
 function initEvents() {
-  const form = document.getElementById('editForm');
-  form.addEventListener('submit', onSubmit);
+  const form = document.getElementById("editForm");
+  form.addEventListener("submit", onSubmit);
 }
 
 initEvents();
