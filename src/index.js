@@ -15,18 +15,23 @@ fetch("http://localhost:3000/teams-json", {
     displayTeams(teams);
   });
 
-function createTeamRequest() {
+function createTeamRequest(team) {
   return fetch("http://localhost:3000/teams-json/create", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      promotion: document.getElementById("promotion").value,
-      members: document.getElementById("members").value,
-      name: document.getElementById("name").value,
-      url: document.getElementById("url").value
-    })
+    body: JSON.stringify(team)
+  }).then(r => r.json());
+}
+
+function updateTeamRequest(team) {
+  return fetch("http://localhost:3000/teams-json/update", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(team)
   }).then(r => r.json());
 }
 
@@ -40,9 +45,19 @@ function deleteTeamRequest(id) {
   }).then(r => r.json());
 }
 
-function displayTeams(teams) {
-  const teamsHTML = teams.map(
-    team => `
+function readTeam() {
+  return {
+    promotion: document.getElementById("promotion").value,
+    members: document.getElementById("members").value,
+    name: document.getElementById("name").value,
+    url: document.getElementById("url").value
+  };
+}
+
+function getTeamsHTML(teams) {
+  return teams
+    .map(
+      team => `
       <tr>
         <td>${team.promotion}</td>
         <td>${team.members}</td>
@@ -53,17 +68,27 @@ function displayTeams(teams) {
           <a data-id="${team.id}" class="edit-btn">&#9998;</a>
         </td>
       </tr>`
-  );
+    )
+    .join("");
+}
 
-  document.querySelector("#teams tbody").innerHTML = teamsHTML.join("");
+function displayTeams(teams) {
+  document.querySelector("#teams tbody").innerHTML = getTeamsHTML(teams);
 }
 
 function onSubmit(e) {
   e.preventDefault();
+  const team = readTeam();
+
   if (editId) {
-    console.warn("update", editId);
+    team.id = editId;
+    updateTeamRequest(team).then(status => {
+      if (status.success) {
+        window.location.reload();
+      }
+    });
   } else {
-    createTeamRequest().then(status => {
+    createTeamRequest(team).then(status => {
       if (status.success) {
         window.location.reload();
       }
@@ -71,11 +96,10 @@ function onSubmit(e) {
   }
 }
 
-// TODO - rename
-function edit(id) {
+function prepareEdit(id) {
   const team = allTeams.find(team => team.id === id);
-  console.warn("edit", id, team);
   editId = id;
+
   document.getElementById("promotion").value = team.promotion;
   document.getElementById("members").value = team.members;
   document.getElementById("name").value = team.name;
@@ -96,7 +120,7 @@ function initEvents() {
       });
     } else if (e.target.matches("a.edit-btn")) {
       const id = e.target.dataset.id;
-      edit(id);
+      prepareEdit(id);
     }
   });
 }
