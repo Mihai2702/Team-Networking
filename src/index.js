@@ -54,6 +54,13 @@ function readTeam() {
   };
 }
 
+function writeTeam() {
+  document.getElementById("promotion").value = team.promotion;
+  document.getElementById("members").value = team.members;
+  document.getElementById("name").value = team.name;
+  document.getElementById("url").value = team.url;
+}
+
 function getTeamsHTML(teams) {
   return teams
     .map(
@@ -62,7 +69,9 @@ function getTeamsHTML(teams) {
         <td>${team.promotion}</td>
         <td>${team.members}</td>
         <td>${team.name}</td>
-        <td>${team.url}</td>
+        <td>
+        <a href="${team.url}" target="_blank">${team.url.replace("https://github.com/", "")}</a>
+        </td>
         <td>
           <a data-id="${team.id}" class="remove-btn">✖</a>
           <a data-id="${team.id}" class="edit-btn">&#9998;</a>
@@ -90,7 +99,14 @@ function onSubmit(e) {
   } else {
     createTeamRequest(team).then(status => {
       if (status.success) {
-        window.location.reload();
+        // 1.add data in table...
+        //1.1 adaug team in allTeams
+        allTeams.push(team);
+        //allTeams = [...allTeams, team]
+        //1.2 apelam displayTeams(allTeams);
+        displayTeams(allTeams);
+        // 2. stergem datele din inputuri
+        e.target.reset();
       }
     });
   }
@@ -100,10 +116,7 @@ function prepareEdit(id) {
   const team = allTeams.find(team => team.id === id);
   editId = id;
 
-  document.getElementById("promotion").value = team.promotion;
-  document.getElementById("members").value = team.members;
-  document.getElementById("name").value = team.name;
-  document.getElementById("url").value = team.url;
+  writeTeam(team);
 }
 
 function initEvents() {
