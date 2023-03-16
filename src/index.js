@@ -99,6 +99,7 @@ function onSubmit(e) {
     createTeamRequest(team).then(status => {
       if (status.success) {
         // 1. adaugam datele in table...
+        team.id = status.id;
         //   1.1. addaug team in allTeams
         allTeams.push(team);
         //allTeams = [...allTeams, team]
