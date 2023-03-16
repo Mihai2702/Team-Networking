@@ -54,7 +54,7 @@ function readTeam() {
   };
 }
 
-function writeTeam() {
+function writeTeam(team) {
   document.getElementById("promotion").value = team.promotion;
   document.getElementById("members").value = team.members;
   document.getElementById("name").value = team.name;
@@ -70,7 +70,7 @@ function getTeamsHTML(teams) {
         <td>${team.members}</td>
         <td>${team.name}</td>
         <td>
-        <a href="${team.url}" target="_blank">${team.url.replace("https://github.com/", "")}</a>
+          <a href="${team.url}" target="_blank">${team.url.replace("https://github.com/", "")}</a>
         </td>
         <td>
           <a data-id="${team.id}" class="remove-btn">✖</a>
@@ -88,7 +88,6 @@ function displayTeams(teams) {
 function onSubmit(e) {
   e.preventDefault();
   const team = readTeam();
-
   if (editId) {
     team.id = editId;
     updateTeamRequest(team).then(status => {
@@ -99,13 +98,14 @@ function onSubmit(e) {
   } else {
     createTeamRequest(team).then(status => {
       if (status.success) {
-        // 1.add data in table...
-        //1.1 adaug team in allTeams
+        // 1. adaugam datele in table...
+        //   1.1. addaug team in allTeams
         allTeams.push(team);
         //allTeams = [...allTeams, team]
-        //1.2 apelam displayTeams(allTeams);
+        //   1.2. apelam displayTeams(allTeams);
         displayTeams(allTeams);
         // 2. stergem datele din inputuri
+        //writeTeam({ promotion: "", name: "", url: "", members: "" });
         e.target.reset();
       }
     });
