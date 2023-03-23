@@ -1,19 +1,14 @@
 let allTeams = [];
 let editId;
 
-fetch("http://localhost:3000/teams-json", {
-  method: "GET",
-  headers: {
-    "Content-Type": "application/json"
-  }
-})
-  .then(r => r.json())
-  .then(teams => {
-    //window.teams = teams;
-    allTeams = teams;
-    console.info(teams);
-    displayTeams(teams);
-  });
+function loadTeamsRequest() {
+  return fetch("http://localhost:3000/teams-json", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }).then(r => r.json());
+}
 
 function createTeamRequest(team) {
   return fetch("http://localhost:3000/teams-json/create", {
@@ -92,6 +87,15 @@ function displayTeams(teams) {
   document.querySelector("#teams tbody").innerHTML = getTeamsHTML(teams);
 }
 
+function loadTeams() {
+  loadTeamsRequest().then(teams => {
+    //window.teams = teams;
+    allTeams = teams;
+    console.info(teams);
+    displayTeams(teams);
+  });
+}
+
 function onSubmit(e) {
   e.preventDefault();
   const team = readTeam();
@@ -99,12 +103,18 @@ function onSubmit(e) {
     team.id = editId;
     updateTeamRequest(team).then(status => {
       if (status.success) {
-        const editeadTeam = allTeams.find(team => team.id === editId);
-        console.warn("editedteam", JSON.stringify(editeadTeam), team);
-        editeadTeam.promotion = team.promotion;
-        editeadTeam.url = team.url;
-        editeadTeam.members = team.members;
-        editeadTeam.name = team.name;
+        // load new teams...?
+        //loadTeams();
+        allTeams = allTeams.map(t => {
+          if (t.id === team.id) {
+            return {
+              ...t,
+              ...team
+            };
+          }
+          return t;
+        });
+
         displayTeams(allTeams);
         e.target.reset();
       }
@@ -113,9 +123,11 @@ function onSubmit(e) {
     createTeamRequest(team).then(status => {
       if (status.success) {
         // 1. adaugam datele in table...
+        //   1.0. adaug id in team
+        team.id = status.id;
         //   1.1. addaug team in allTeams
+        //allTeams.push(team);
         allTeams = [...allTeams, team];
-        //allTeams = [...allTeams, team]
         //   1.2. apelam displayTeams(allTeams);
         displayTeams(allTeams);
         // 2. stergem datele din inputuri
@@ -145,7 +157,7 @@ function initEvents() {
       const id = e.target.dataset.id;
       deleteTeamRequest(id).then(status => {
         if (status.success) {
-          window.location.reload();
+          loadTeams();
         }
       });
     } else if (e.target.matches("a.edit-btn")) {
@@ -155,4 +167,5 @@ function initEvents() {
   });
 }
 
+loadTeams();
 initEvents();
