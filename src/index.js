@@ -81,7 +81,14 @@ function getTeamsHTML(teams) {
     .join("");
 }
 
+let oldDisplayTeams;
 function displayTeams(teams) {
+  if (oldDisplayTeams === teams) {
+    console.warn("same teams to display", oldDisplayTeams, teams);
+    return;
+  }
+  console.info(oldDisplayTeams, teams);
+  oldDisplayTeams = teams;
   document.querySelector("#teams tbody").innerHTML = getTeamsHTML(teams);
 }
 
@@ -92,7 +99,14 @@ function onSubmit(e) {
     team.id = editId;
     updateTeamRequest(team).then(status => {
       if (status.success) {
-        window.location.reload();
+        const editeadTeam = allTeams.find(team => team.id === editId);
+        console.warn("editedteam", JSON.stringify(editeadTeam), team);
+        editeadTeam.promotion = team.promotion;
+        editeadTeam.url = team.url;
+        editeadTeam.members = team.members;
+        editeadTeam.name = team.name;
+        displayTeams(allTeams);
+        e.target.reset();
       }
     });
   } else {
@@ -100,7 +114,7 @@ function onSubmit(e) {
       if (status.success) {
         // 1. adaugam datele in table...
         //   1.1. addaug team in allTeams
-        allTeams.push(team);
+        allTeams = [...allTeams, team];
         //allTeams = [...allTeams, team]
         //   1.2. apelam displayTeams(allTeams);
         displayTeams(allTeams);
