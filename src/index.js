@@ -1,4 +1,4 @@
-import { loadTeamsRequest, createTeamRequest, deleteTeamRequest, updateTeamRequest } from "./requests";
+import { loadTeamsRequest, createTeamRequest, deleteTeamRequest, updateTeamRequest, $ } from "./requests";
 import { sleep } from "./utilities";
 // const utilities = require('./utilities');
 
@@ -99,12 +99,24 @@ function prepareEdit(id) {
 
   writeTeam(team);
 }
+function searchTeams(search) {
+  return allTeams.filter(team => {
+    return team.promotion.indexOf(search) > -1;
+  });
+}
 
 function initEvents() {
   const form = document.getElementById("editForm");
   form.addEventListener("submit", onSubmit);
   form.addEventListener("reset", () => {
     editId = undefined;
+  });
+
+  $("#search").addEventListener("input", e => {
+    const search = e.target.value;
+    const teams = searchTeams(search);
+    console.info(e.target.value);
+    displayTeams(teams);
   });
 
   document.querySelector("#teams tbody").addEventListener("click", async e => {
