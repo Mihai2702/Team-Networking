@@ -1,47 +1,9 @@
+import { loadTeamsRequest, createTeamRequest, deleteTeamRequest, updateTeamRequest } from "./requests";
 import { sleep } from "./utilities";
 // const utilities = require('./utilities');
 
 let allTeams = [];
 let editId;
-
-function loadTeamsRequest() {
-  return fetch("http://localhost:3000/teams-json", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  }).then(r => r.json());
-}
-
-function createTeamRequest(team) {
-  return fetch("http://localhost:3000/teams-json/create", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(team)
-  }).then(r => r.json());
-}
-
-function updateTeamRequest(team) {
-  return fetch("http://localhost:3000/teams-json/update", {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(team)
-  }).then(r => r.json());
-}
-
-function deleteTeamRequest(id) {
-  return fetch("http://localhost:3000/teams-json/delete", {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ id })
-  }).then(r => r.json());
-}
 
 function readTeam() {
   return {
@@ -155,7 +117,7 @@ function initEvents() {
     editId = undefined;
   });
 
-  document.querySelector("#teams tbody").addEventListener("click", e => {
+  document.querySelector("#teams tbody").addEventListener("click", async e => {
     if (e.target.matches("a.remove-btn")) {
       const id = e.target.dataset.id;
       deleteTeamRequest(id).then(status => {
@@ -164,6 +126,12 @@ function initEvents() {
           // TODO homework: don't load all teams...
         }
       });
+
+      const status = await deleteTeamRequest(id);
+      if (status.success) {
+        loadTeams();
+        // TODO homework: don't load all teams...
+      }
     } else if (e.target.matches("a.edit-btn")) {
       const id = e.target.dataset.id;
       prepareEdit(id);
