@@ -36,3 +36,7 @@ export function deleteTeamRequest(id) {
     body: JSON.stringify({ id })
   }).then(r => r.json());
 }
+
+export function $(selector) {
+  return document.querySelector(selector);
+}
