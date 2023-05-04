@@ -5,3 +5,12 @@ export function sleep(ms) {
     }, ms);
   });
 }
+export function debounce(fn, ms) {
+  return function () {
+    console.warn("inner");
+    console.warn("debounce", fn, ms);
+    setTimeout(function () {
+      console.info("timeout");
+    }, ms);
+  };
+}

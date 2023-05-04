@@ -1,6 +1,6 @@
-import debounce from "lodash";
-import { loadTeamsRequest, createTeamRequest, deleteTeamRequest, updateTeamRequest, $ } from "./requests";
-import { sleep } from "./utilities";
+// import debounce from "lodash/debounce";
+import { loadTeamsRequest, createTeamRequest, deleteTeamRequest, updateTeamRequest } from "./requests";
+import { $, sleep, debounce } from "./utilities";
 // const utilities = require('./utilities');
 
 let allTeams = [];
@@ -8,8 +8,8 @@ let editId;
 
 function readTeam() {
   return {
-    promotion: document.getElementById("promotion").value,
-    members: document.getElementById("members").value,
+    promotion: $("#promotion").value,
+    members: $("#members").value,
     name: document.getElementById("name").value,
     url: document.getElementById("url").value
   };
@@ -48,17 +48,18 @@ function displayTeams(teams) {
     console.warn("same teams to display", oldDisplayTeams, teams);
     return;
   }
-  console.info(oldDisplayTeams, teams);
+  //console.info(oldDisplayTeams, teams);
   oldDisplayTeams = teams;
   document.querySelector("#teams tbody").innerHTML = getTeamsHTML(teams);
 }
 
 function loadTeams() {
-  loadTeamsRequest().then(teams => {
+  return loadTeamsRequest().then(teams => {
     //window.teams = teams;
     allTeams = teams;
     console.info(teams);
     displayTeams(teams);
+    return teams;
   });
 }
 
@@ -100,6 +101,7 @@ function prepareEdit(id) {
 
   writeTeam(team);
 }
+
 function searchTeams(search) {
   return allTeams.filter(team => {
     return team.promotion.indexOf(search) > -1;
@@ -107,7 +109,7 @@ function searchTeams(search) {
 }
 
 function initEvents() {
-  const form = document.getElementById("editForm");
+  const form = $("#editForm");
   form.addEventListener("submit", onSubmit);
   form.addEventListener("reset", () => {
     editId = undefined;
@@ -116,13 +118,13 @@ function initEvents() {
   $("#search").addEventListener(
     "input",
     debounce(e => {
-      const search = searchTeams(e.target.value);
+      const teams = searchTeams(e.target.value);
       displayTeams(teams);
       console.info("search");
     }, 300)
   );
 
-  document.querySelector("#teams tbody").addEventListener("click", async e => {
+  $("#teams tbody").addEventListener("click", async e => {
     if (e.target.matches("a.remove-btn")) {
       const id = e.target.dataset.id;
       const status = await deleteTeamRequest(id);
@@ -137,18 +139,23 @@ function initEvents() {
   });
 }
 
-loadTeams();
+$("#editForm").classList.add("loading-mask");
+loadTeams().then(async () => {
+  await sleep(200);
+  $("#editForm").classList.remove("loading-mask");
+});
+
 initEvents();
 
 // TODO move in external file
-console.info("sleep");
-sleep(2000).then(r => {
-  console.info("done1", r);
-});
-console.warn("after sleep");
+// console.info("sleep");
+// sleep(2000).then(r => {
+//   console.info("done1", r);
+// });
+// console.warn("after sleep");
 
-(async () => {
-  console.info("sleep2");
-  var r2 = await sleep(5000);
-  console.warn("done2", r2);
-})();
+// (async () => {
+//   console.info("sleep2");
+//   var r2 = await sleep(5000);
+//   console.warn("done2", r2);
+// })();
